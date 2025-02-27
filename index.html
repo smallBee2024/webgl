@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WebGL Demo</title>
+    <style>
+        body{
+            margin: 0;
+            padding: 0;
+            background-color: #000;
+          }
+        canvas {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="glCanvas"></canvas>
+    <script>
+        // 获取画布元素
+        const canvas = document.getElementById('glCanvas');
+        const gl = canvas.getContext('webgl');
+
+        // 设置视口
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0.0, 0.0, 0.0, 1.0); // 黑色背景
+        gl.clear(gl.COLOR_BUFFER_BIT);
+
+        // 定义三角形的顶点
+        const vertices = new Float32Array([
+          //   0.0,  0.5,  // 顶部
+          //  -0.5, -0.5,  // 左下角
+          //   0.5, -0.5   // 右下角
+
+          // -0.5,  0.5,  // 左上角
+          //  0.5,  0.5,  // 右上角
+          // -0.5, -0.5,  // 左下角
+          //  0.5, -0.5   // 右下角
+
+          -0.5,  0.5,  // 左上角
+          0.5,  0.5,  // 右上角
+          -0.5, -0.5,  // 左下角
+
+          0.5,  0.5,  // 右上角
+          -0.5, -0.5,  // 左下角
+          0.5, -0.5   // 右下角
+        ]);
+
+        // 创建缓冲区并将顶点数据传入
+        const vertexBuffer = gl.createBuffer(); // 创建一个缓冲区对象
+        gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer); // 绑定缓冲区
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); // 将顶点数据传入缓冲区
+
+
+        // ------------------------------------------------------------
+        // 创建顶点着色器
+        const vertexShaderSource = `
+            attribute vec2 coordinates;
+            void main(void) {
+                gl_Position = vec4(coordinates, 0.0, 1.0);
+            }
+        `;
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER); // 创建一个顶点着色器
+        gl.shaderSource(vertexShader, vertexShaderSource); // 将顶点着色器源码传入着色器
+        gl.compileShader(vertexShader); // 编译着色器
+
+        // ------------------------------------------------------------
+
+        // 创建片段着色器
+        const fragmentShaderSource = `
+            void main(void) {
+                gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0); // 红色
+            }
+        `;
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+        gl.shaderSource(fragmentShader, fragmentShaderSource);
+        gl.compileShader(fragmentShader);
+
+        // 创建着色器程序
+        const shaderProgram = gl.createProgram(); // 创建一个着色器程序
+        gl.attachShader(shaderProgram, vertexShader); // 将顶点着色器附加到着色器程序
+        gl.attachShader(shaderProgram, fragmentShader); // 将片段着色器附加到着色器程序
+        gl.linkProgram(shaderProgram); // 链接着色器程序
+        gl.useProgram(shaderProgram); // 使用着色器程序
+
+        // 绑定缓冲区并绘制三角形
+        const coord = gl.getAttribLocation(shaderProgram, "coordinates"); // 获取坐标属性的位置
+        gl.vertexAttribPointer(coord, 2, gl.FLOAT, false, 0, 0); // 将坐标属性绑定到缓冲区
+        gl.enableVertexAttribArray(coord); // 启用坐标属性
+        gl.drawArrays(gl.TRIANGLES, 0, 6); // 绘制三角形
+    </script>
+</body>
+</html>
