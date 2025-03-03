@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>绘制三角形</title>
+	<link rel = "stylesheet" href="./css/common.css" />
+	<style>
+		body{
+				margin: 0;
+				padding: 0;
+			}
+		canvas {
+				width: 600px;
+				height: 600px;
+		}
+</style>
+</head>
+<body>
+	<canvas id="canvas"></canvas>
+	<script src="./utils/webgl-helper.js"></script>
+	<script>
+		const canvas = document.querySelector('#canvas');
+    const gl = canvas.getContext('webgl');
+
+		const vertexSource = `
+			attribute vec2 a_Position;
+			void main(){
+				gl_Position = vec4(a_Position, 0.0, 1.0);
+				gl_PointSize = 10.0;
+			}
+		`
+
+		const vertexShader = gl.createShader(gl.VERTEX_SHADER);
+		gl.shaderSource(vertexShader, vertexSource);
+		gl.compileShader(vertexShader);
+
+		const fragmentSource = `
+			void main(){
+				gl_FragColor = vec4(1, 0, 0, 1);
+			}	
+		`
+
+		const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER);
+		gl.shaderSource(fragmentShader, fragmentSource);
+		gl.compileShader(fragmentShader);
+
+		const program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+		gl.useProgram(program);
+
+
+		const a_Position = gl.getAttribLocation(program, 'a_Position');
+		
+		// 定义线的两个端点
+		const positions = new Float32Array([
+			-0.5, 0.0,  // 第一个顶点
+			0.5, 0.0   // 第二个顶点
+		]);
+
+		let buffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+		gl.bufferData(gl.ARRAY_BUFFER, positions, gl.STATIC_DRAW);
+
+		gl.enableVertexAttribArray(a_Position);
+		gl.vertexAttribPointer(a_Position, 2, gl.FLOAT, false, 0, 0);
+
+		gl.clearColor(0, 0, 0, 1);
+		gl.clear(gl.COLOR_BUFFER_BIT);
+		gl.drawArrays(gl.LINES, 0, 2);
+	</script>
+</body>
+</html>
