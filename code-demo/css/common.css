@@ -80,3 +80,9 @@ button {
   -webkit-appearance: button;
   box-shadow: 0 2px 0 rgba(0, 0, 0, 0.045);
 }
+
+canvas {
+  border: 1px solid #000;
+  width: 600px;
+  height: 600px;
+}
