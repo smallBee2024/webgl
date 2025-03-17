@@ -48,6 +48,7 @@ function drawScene(gl, programInfo, buffers, squareRotation) {
     [-0.0, 0.0, -6.0] // 平移量
   );
 
+  console.log('squareRotation', squareRotation);
   // 旋转方块
   mat4.rotate(
     modelViewMatrix, // 目标矩阵
