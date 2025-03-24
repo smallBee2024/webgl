@@ -53,7 +53,9 @@
         console.log('angle', angle);
         let x1 = sin(angle) * r;
         let y1 = cos(angle) * r;
+        console.log('x1', x1, 'y1', y1);
         if (angle > 90 && angle <= 180) {
+          console.log('angle > 90 && angle <= 180');
           y1 = -y1;
         }
         if (angle > 180 && angle <= 270) {
@@ -63,7 +65,7 @@
         if (angle > 270 && angle <= 360) {
           x1 = -x1;
         }
-        console.log('x1', x1, 'y1', y1);
+        // console.log('x1', x1, 'y1', y1);
         positions.push(x + x1, y + y1);
       }
       return positions;

@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <title>纹理贴图</title>
+    <script
+    src="https://cdnjs.cloudflare.com/ajax/libs/gl-matrix/2.8.1/gl-matrix-min.js"
+    integrity="sha512-zhHQR0/H5SEBL3Wn6yYSaTTZej12z0hVZKOv3TwCUXT1z5qeqGcXJLLrbERYRScEDDpYIJhPC1fk31gqR783iQ=="
+    crossorigin="anonymous"
+  ></script>
     <link rel="stylesheet" href="./css/common.css" />
   </head>
 
@@ -14,9 +19,11 @@
       attribute vec2 a_Position;
       varying vec2 v_Uv;
       attribute vec2 a_Uv;
+      uniform mat4 u_RotationMatrix;
 
       void main(){
-          gl_Position = vec4(a_Position, 0, 1);
+          vec4 position = vec4(a_Position, 0, 1);
+          gl_Position = u_RotationMatrix * position;
           v_Uv = a_Uv;
       }
     </script>
@@ -49,6 +56,11 @@
 
       //使用该着色器程序
       gl.useProgram(program);
+
+      // 添加旋转矩阵uniform变量
+      let u_RotationMatrix = gl.getUniformLocation(program, "u_RotationMatrix");
+      let rotationAngle = 0;
+
       let positions = [
         // -0.5, 0.5, 1, 0,
         // -0.5, -0.5, 0, 0,
@@ -98,10 +110,24 @@
         if (positions.length <= 0) {
           return;
         }
+
+        // 创建旋转矩阵
+        let rotationMatrix = mat4.create();
+        mat4.rotateZ(rotationMatrix, rotationMatrix, rotationAngle);
+        
+        // 更新旋转角度
+        rotationAngle += 0.02;
+        
+        // 将旋转矩阵传递给着色器
+        gl.uniformMatrix4fv(u_RotationMatrix, false, rotationMatrix);
+        
         gl.drawArrays(gl.TRIANGLES, 0, positions.length / 4);
+        
+        // 请求下一帧动画
+        requestAnimationFrame(render);
       }
 
-      loadTexture(gl, "./img/wave.jpg", u_Texture, function () {
+      loadTexture(gl, "./img/11.png", u_Texture, function () {
         render();
       });
     </script>

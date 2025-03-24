@@ -14,36 +14,18 @@
 </head>
 <body>
   <canvas id="canvas"></canvas>
+  <script src="./utils/webgl-helper.js"></script>
+  <!-- <script src="./utils/webgl-matrix.js"></script> -->
   <script>
-    function loadTexture(gl, src, attribute, callback) {
-      let texture = gl.createTexture();
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-
-      let img = new Image();
-      img.crossOrigin = 'anonymous';
-      img.onload = function() {
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
-        
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-        gl.generateMipmap(gl.TEXTURE_2D);
-        callback && callback(texture);
-      };
-      img.src = src;
-
-      return texture;
-    }
+   
     const canvas = document.getElementById('canvas');
-    const gl = canvas.getContext('webgl', { antialias: true });
+    const gl = canvas.getContext('webgl');
 
     const vertexSource = `
       precision mediump float;
       attribute vec3 a_Position;
       uniform mat4 u_Matrix;
-      // 接收JavaScript传递过来的顶点 uv 坐标。
       attribute vec2 a_Uv;
-      // 将接收的uv坐标传递给片元着色器
       varying vec2 v_Uv;
 
       void main() {
@@ -75,18 +57,15 @@
     gl.linkProgram(program);
     gl.useProgram(program);
 
-    // 创建变换矩阵
-    const matrix = mat4.create();
-    // mat4.translate(matrix, matrix, [0.5, 0, 0]);  // 向x轴正方向移动0.2
-    
+    /*---------------------------------------------------------------------------------------------------------*/
+
     // 获取uniform变量的位置
     const matrixLocation = gl.getUniformLocation(program, 'u_Matrix');
-    // 设置uniform变量
-    // gl.uniformMatrix4fv(matrixLocation, false, matrix);
-
     const positionAttributeLocation = gl.getAttribLocation(program, 'a_Position');
     const colorAttributeLocation = gl.getAttribLocation(program, 'a_Uv');
     const u_Texture = gl.getUniformLocation(program, 'u_Texture');
+
+    const matrix = mat4.create();
 
 
     gl.enableVertexAttribArray(positionAttributeLocation);
@@ -164,39 +143,31 @@
       gl.clearColor(0, 0, 0, 1);
 
     function render() {
-      mat4.rotate(
-        matrix, // 目标矩阵
-        matrix, // 要旋转的矩阵
-        zAngle, // 旋转弧度
-        [0, 1, 0] // 改为绕Y轴旋转
-      );
-
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      if (positions.length <= 0) {
+        return;
+      }
+      console.log(zAngle);
+      
+      // mat4.rotate(
+      //   matrix, // 目标矩阵
+      //   matrix, // 要旋转的矩阵
+      //   zAngle, // 旋转弧度
+      //   [0, 0, 1] // 改为绕Y轴旋转
+      // );
+      
       // 设置uniform变量
       gl.uniformMatrix4fv(matrixLocation, false, matrix);
 
-      // 设置清除深度为1.0
-      gl.clearDepth(1.0);
-      // 启用深度测试
-      gl.enable(gl.DEPTH_TEST);
-      // 设置深度测试函数 - 近处的物体会遮挡远处的物体
-      gl.depthFunc(gl.LEQUAL);
-      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-
-      gl.activeTexture(gl.TEXTURE0);
-      gl.bindTexture(gl.TEXTURE_2D, _texture);
-      gl.uniform1i(u_Texture, 0);
-
       gl.drawElements(gl.TRIANGLES, indices.length, gl.UNSIGNED_SHORT, 0);
 
-      requestAnimationFrame(render);
+      // requestAnimationFrame(render);
     }
     
-    let zAngle = 0.005;  // 增加旋转速度
-    const _texture = loadTexture(gl, './img/wave.jpg', u_Texture);
-    gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
-
-    render();
+    let zAngle = 0.01;  // 增加旋转速度
+    loadTexture(gl, './img/11.png', u_Texture, function () {
+      render();
+    });
   </script>
 </body>
 </html>
